@@ -15,16 +15,18 @@ AutoHotkey **v2** scripts for **Windows 11** virtual desktops using **[VirtualDe
 
 ## Installation
 
-### 1. Clone this repository
+### 1. Clone this repository (or download a ZIP)
 
 ```powershell
 git clone https://github.com/PepegaSan/Visual-Desktop-Autohotkey.git
 cd Visual-Desktop-Autohotkey
 ```
 
+Alternatively, on GitHub use **Code → Download ZIP** and extract the folder.
+
 ### 2. DLL (already in the repo)
 
-After clone, **`VirtualDesktopAccessor.dll`** is already next to the scripts. To **upgrade** to the newest upstream build (e.g. after a Windows update), run:
+After clone or ZIP extract, **`VirtualDesktopAccessor.dll`** is already next to the scripts. To **upgrade** to the newest upstream build (e.g. after a Windows update), run:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
