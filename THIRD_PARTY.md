@@ -2,23 +2,21 @@
 
 ## VirtualDesktopAccessor (DLL)
 
-This repository **does not** ship the binary `VirtualDesktopAccessor.dll`.
+This repository **includes** `VirtualDesktopAccessor.dll` in the **project root** (next to the `.ahk` scripts) as a **convenience and offline backup**, together with the upstream **MIT** license text.
+
+| Item | Location |
+|------|-----------|
+| Binary | `VirtualDesktopAccessor.dll` |
+| Upstream MIT license (verbatim) | [`third-party/VirtualDesktopAccessor/LICENSE.txt`](third-party/VirtualDesktopAccessor/LICENSE.txt) |
+| Short notes | [`third-party/VirtualDesktopAccessor/README.md`](third-party/VirtualDesktopAccessor/README.md) |
 
 - **Project:** [Ciantic / VirtualDesktopAccessor](https://github.com/Ciantic/VirtualDesktopAccessor)
-- **License:** **MIT** (see upstream repository, e.g. the `LICENSE` file on the `rust` branch).
-- **Copyright:** Jari Otto Oskari Pennanen and contributors (as stated in the upstream project).
+- **License:** **MIT** — copyright Jari Otto Oskari Pennanen (see `LICENSE.txt` above; text copied from the upstream `rust` branch).
 
-### How this repo uses it
+### Updating the DLL
 
-Users place `VirtualDesktopAccessor.dll` next to the AutoHotkey scripts, typically by:
-
-- downloading a release asset from the upstream **Releases** page, or  
-- running `download-vda.ps1`, which fetches the `.dll` from the latest GitHub release via the GitHub API.
-
-### If you redistribute the DLL yourself
-
-The MIT license requires that you **include the upstream copyright and permission notice** when you distribute copies of the DLL (or derivative builds). Keep a copy of the upstream `LICENSE` with your distribution. This repository’s own `LICENSE` file applies only to the AutoHotkey and PowerShell files maintained here, not to upstream binaries.
+To refresh to the **latest upstream release**, run `download-vda.ps1` from the project root (overwrites the root `VirtualDesktopAccessor.dll`). After upgrading, consider recommitting the new binary if you want the backup copy in git to stay current.
 
 ### Stability note
 
-The DLL talks to **undocumented** Windows virtual-desktop APIs. Major Windows updates can require a newer DLL build from the upstream project.
+The DLL uses **undocumented** Windows virtual-desktop APIs. Major Windows updates can require a newer DLL build from the upstream project.
