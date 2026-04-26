@@ -1,0 +1,7 @@
+# Upstream binary — do not commit (license clarity + version drift).
+VirtualDesktopAccessor.dll
+
+# OS / editor noise
+Thumbs.db
+Desktop.ini
+.DS_Store
