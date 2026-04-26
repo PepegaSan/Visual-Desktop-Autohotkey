@@ -15,14 +15,7 @@ AutoHotkey **v2** scripts for **Windows 11** virtual desktops using **[VirtualDe
 
 ## Installation
 
-### 1. Clone or copy this repo
-
-```powershell
-git clone https://github.com/YOUR_USER/win11-vd-api.git
-cd win11-vd-api
-```
-
-(Replace the URL with your GitHub repo after you publish it.)
+### 1. Download the repo or release file
 
 ### 2. Obtain the DLL (pick one)
 
