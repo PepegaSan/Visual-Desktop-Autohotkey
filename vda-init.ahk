@@ -6,9 +6,19 @@ global VDA_GetCurrentDesktopNumber := 0
 global VDA_GoToDesktopNumber := 0
 global VDA_MoveWindowToDesktopNumber := 0
 global VDA_GetWindowDesktopNumber := 0
+; Optional (nicht jede DLL-Version): Pin = „Fenster auf allen Desktops“
+global VDA_PinWindow := 0
+global VDA_UnPinWindow := 0
+global VDA_IsPinnedWindow := 0
+global VDA_PinApp := 0
+global VDA_UnPinApp := 0
+global VDA_IsPinnedApp := 0
+global VDA_IsWindowOnCurrentVirtualDesktop := 0
+global VDA_CreateDesktop := 0
 
 VDA_Init() {
     global VDA_hModule, VDA_GetDesktopCount, VDA_GetCurrentDesktopNumber, VDA_GoToDesktopNumber, VDA_MoveWindowToDesktopNumber, VDA_GetWindowDesktopNumber
+    global VDA_PinWindow, VDA_UnPinWindow, VDA_IsPinnedWindow, VDA_PinApp, VDA_UnPinApp, VDA_IsPinnedApp, VDA_IsWindowOnCurrentVirtualDesktop, VDA_CreateDesktop
     dllPath := A_ScriptDir "\VirtualDesktopAccessor.dll"
     if !FileExist(dllPath) {
         MsgBox(
@@ -35,6 +45,181 @@ VDA_Init() {
         ExitApp
     }
     VDA_GetWindowDesktopNumber := DllCall("GetProcAddress", "Ptr", VDA_hModule, "AStr", "GetWindowDesktopNumber", "Ptr")
+    VDA_PinWindow := DllCall("GetProcAddress", "Ptr", VDA_hModule, "AStr", "PinWindow", "Ptr")
+    VDA_UnPinWindow := DllCall("GetProcAddress", "Ptr", VDA_hModule, "AStr", "UnPinWindow", "Ptr")
+    VDA_IsPinnedWindow := DllCall("GetProcAddress", "Ptr", VDA_hModule, "AStr", "IsPinnedWindow", "Ptr")
+    VDA_PinApp := DllCall("GetProcAddress", "Ptr", VDA_hModule, "AStr", "PinApp", "Ptr")
+    VDA_UnPinApp := DllCall("GetProcAddress", "Ptr", VDA_hModule, "AStr", "UnPinApp", "Ptr")
+    VDA_IsPinnedApp := DllCall("GetProcAddress", "Ptr", VDA_hModule, "AStr", "IsPinnedApp", "Ptr")
+    VDA_IsWindowOnCurrentVirtualDesktop := DllCall("GetProcAddress", "Ptr", VDA_hModule, "AStr", "IsWindowOnCurrentVirtualDesktop", "Ptr")
+    VDA_CreateDesktop := DllCall("GetProcAddress", "Ptr", VDA_hModule, "AStr", "CreateDesktop", "Ptr")
+}
+
+VDA_PinExportsOk() {
+    global VDA_PinWindow, VDA_UnPinWindow, VDA_IsPinnedWindow
+    return VDA_PinWindow && VDA_UnPinWindow && VDA_IsPinnedWindow
+}
+
+VDA_ActiveHwnd() {
+    try
+        return WinGetID("A")
+    catch
+        return 0
+}
+
+; --- Pin einzelnes Fenster („auf allen Desktops anzeigen“) ---
+
+VDA_IsActiveWindowPinned() {
+    global VDA_IsPinnedWindow
+    hwnd := VDA_ActiveHwnd()
+    if !hwnd || !VDA_IsPinnedWindow
+        return false
+    return DllCall(VDA_IsPinnedWindow, "Ptr", hwnd, "Int") != 0
+}
+
+VDA_PinActiveWindow() {
+    global VDA_PinWindow
+    hwnd := VDA_ActiveHwnd()
+    if !hwnd {
+        MsgBox("Kein aktives Fenster.", "VDA Pin", "Icon!")
+        return -1
+    }
+    if !VDA_PinWindow {
+        MsgBox("PinWindow fehlt in dieser DLL-Version.", "VDA Pin", "Icon!")
+        return -1
+    }
+    r := DllCall(VDA_PinWindow, "Ptr", hwnd, "Int")
+    if r = -1
+        MsgBox("PinWindow fehlgeschlagen (-1).`nAdmin-Fenster oder nicht unterstütztes Fenster?", "VDA Pin", "Icon!")
+    return r
+}
+
+VDA_UnpinActiveWindow() {
+    global VDA_UnPinWindow
+    hwnd := VDA_ActiveHwnd()
+    if !hwnd {
+        MsgBox("Kein aktives Fenster.", "VDA Pin", "Icon!")
+        return -1
+    }
+    if !VDA_UnPinWindow {
+        MsgBox("UnPinWindow fehlt in dieser DLL-Version.", "VDA Pin", "Icon!")
+        return -1
+    }
+    r := DllCall(VDA_UnPinWindow, "Ptr", hwnd, "Int")
+    if r = -1
+        MsgBox("UnPinWindow fehlgeschlagen (-1).", "VDA Pin", "Icon!")
+    return r
+}
+
+VDA_TogglePinActiveWindow() {
+    if !VDA_PinExportsOk() {
+        MsgBox("Pin/Unpin/IsPinnedWindow fehlen in dieser DLL-Version.", "VDA Pin", "Icon!")
+        return
+    }
+    if VDA_IsActiveWindowPinned()
+        VDA_UnpinActiveWindow()
+    else
+        VDA_PinActiveWindow()
+}
+
+; --- Pin ganze App (optional, für eigene Hotkeys / später) ---
+
+VDA_IsActiveAppPinned() {
+    global VDA_IsPinnedApp
+    hwnd := VDA_ActiveHwnd()
+    if !hwnd || !VDA_IsPinnedApp
+        return false
+    return DllCall(VDA_IsPinnedApp, "Ptr", hwnd, "Int") != 0
+}
+
+VDA_PinActiveApp() {
+    global VDA_PinApp
+    hwnd := VDA_ActiveHwnd()
+    if !hwnd {
+        MsgBox("Kein aktives Fenster.", "VDA Pin App", "Icon!")
+        return -1
+    }
+    if !VDA_PinApp {
+        MsgBox("PinApp fehlt in dieser DLL-Version.", "VDA Pin App", "Icon!")
+        return -1
+    }
+    r := DllCall(VDA_PinApp, "Ptr", hwnd, "Int")
+    if r = -1
+        MsgBox("PinApp fehlgeschlagen (-1).", "VDA Pin App", "Icon!")
+    return r
+}
+
+VDA_UnpinActiveApp() {
+    global VDA_UnPinApp
+    hwnd := VDA_ActiveHwnd()
+    if !hwnd {
+        MsgBox("Kein aktives Fenster.", "VDA Pin App", "Icon!")
+        return -1
+    }
+    if !VDA_UnPinApp {
+        MsgBox("UnPinApp fehlt in dieser DLL-Version.", "VDA Pin App", "Icon!")
+        return -1
+    }
+    r := DllCall(VDA_UnPinApp, "Ptr", hwnd, "Int")
+    if r = -1
+        MsgBox("UnPinApp fehlgeschlagen (-1).", "VDA Pin App", "Icon!")
+    return r
+}
+
+VDA_TogglePinActiveApp() {
+    global VDA_PinApp, VDA_UnPinApp, VDA_IsPinnedApp
+    if !VDA_PinApp || !VDA_UnPinApp || !VDA_IsPinnedApp {
+        MsgBox("PinApp/UnPinApp/IsPinnedApp fehlen in dieser DLL-Version.", "VDA Pin App", "Icon!")
+        return
+    }
+    if VDA_IsActiveAppPinned()
+        VDA_UnpinActiveApp()
+    else
+        VDA_PinActiveApp()
+}
+
+; --- Sonstige Helfer (ohne Hotkey; für eigene Skripte) ---
+
+VDA_IsWindowOnCurrentDesktop(hwnd) {
+    global VDA_IsWindowOnCurrentVirtualDesktop
+    if !hwnd || !VDA_IsWindowOnCurrentVirtualDesktop
+        return false
+    return DllCall(VDA_IsWindowOnCurrentVirtualDesktop, "Ptr", hwnd, "Int") != 0
+}
+
+VDA_GoToDesktopIndex(n) {
+    global VDA_GoToDesktopNumber
+    if !VDA_GoToDesktopNumber {
+        MsgBox("GoToDesktopNumber nicht geladen.", "VDA", "Icon!")
+        return -1
+    }
+    r := DllCall(VDA_GoToDesktopNumber, "Int", n, "Int")
+    if r = -1
+        MsgBox("GoToDesktopNumber(" n ") fehlgeschlagen (-1).", "VDA", "Icon!")
+    return r
+}
+
+; Neuer virtueller Desktop (Win11, DLL-Export). Rückgabe = Index des neuen Desktops oder -1.
+
+VDA_CreateNewDesktop() {
+    global VDA_CreateDesktop
+    if !VDA_CreateDesktop
+        return -1
+    return DllCall(VDA_CreateDesktop, "Int")
+}
+
+VDA_CreateNewDesktopAndGo() {
+    idx := VDA_CreateNewDesktop()
+    if idx < 0 {
+        MsgBox(
+            "Neuer Desktop geht nicht.`n`n"
+            "Mögliche Gründe: DLL zu alt, kein Windows 11, oder CreateDesktop nicht verfügbar.",
+            "VDA",
+            "Icon!",
+        )
+        return
+    }
+    VDA_GoToWrapped(idx)
 }
 
 VDA_ActiveWindowDesktopIndex() {

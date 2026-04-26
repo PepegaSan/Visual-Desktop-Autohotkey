@@ -45,16 +45,22 @@ Double-click `win11-vd-api.ahk` or run from a terminal:
 
 (Adjust the path if your AutoHotkey v2 install differs.)
 
-## Default hotkeys
+## Hotkeys (short)
 
-| Key   | Action |
-|-------|--------|
-| **F14** | Previous virtual desktop (view), wrap |
-| **F15** | Next virtual desktop (view), wrap |
-| **F16** | Move **active window** to next desktop (wrap); you stay on the current desktop |
-| **F17** | Move **active window** to previous desktop (wrap) |
+Edit the flags at the **top** of **`win11-vd-api.ahk`** (lines like `VDA_HK_F14NextDesktop := true`). Only switches set to **`true`** do anything. Restart the script after changes.
 
-Edit `win11-vd-api.ahk` to change keys. Focus the target window before using F16/F17.
+**Defaults:**
+
+| Key | Action |
+|-----|--------|
+| **F14** | **Next** virtual desktop (switch view only, wraps at the end) |
+| **F15** | Toggle “show active window on **all** desktops” (pin / unpin) |
+| **F16** | Move the active window to the **next** desktop (you stay on the current one) |
+| **F17** | **Create** a new virtual desktop and switch to it |
+
+To disable a key, set its `VDA_HK_*` line to **`false`**.
+
+**Notes:** `VDA_HK_GoNext` would put “next desktop” on **F15** as well — that **conflicts** with pin on F15, so leave it `false` by default. **`VDA_HK_MoveActivePrev`** would move the window to the **previous** desktop on **F17** — that **conflicts** with **`VDA_HK_F17CreateDesktop`**. To get “move window to previous desktop” on F17 again, set `VDA_HK_F17CreateDesktop` to `false` and `VDA_HK_MoveActivePrev` to `true`, or bind `VDA_GoToPrev()` from `vda-init.ahk` to another key yourself.
 
 ## Files
 
