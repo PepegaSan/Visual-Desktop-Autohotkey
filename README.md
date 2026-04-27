@@ -10,8 +10,8 @@ AutoHotkey **v2** scripts for **Windows 11** virtual desktops using **[VirtualDe
 ## Requirements
 
 - **Windows 11** — upstream notes a minimum around **24H2 Build 26100.2605**; older builds may fail or crash. Update Windows or use an older upstream release at your own risk.
-- **[AutoHotkey v2](https://www.autohotkey.com/)**
-- **`VirtualDesktopAccessor.dll`** in the **same folder** as `win11-vd-api.ahk` (included when you clone this repo).
+- **[AutoHotkey v2](https://www.autohotkey.com/)** — `win11-vd-api.ahk` targets **v2.0+**; the optional shell-hook script below needs **v2.1+** (`ComValue`).
+- **`VirtualDesktopAccessor.dll`** in the **same folder** as `win11-vd-api.ahk` (included when you clone this repo). The optional shell-hook script does **not** use this DLL.
 
 ## Installation
 
@@ -66,11 +66,21 @@ To disable a key, set its `VDA_HK_*` line to **`false`**.
 
 In **`win11-vd-api.ahk`**, set **`VDA_RUN_ON_DESKTOP_AT_START`** to **`true`** and fill **`VDA_RunOnDesktopList`** with one or more objects (`desktop`, `exe`, `args`, `workDir`). Commented examples are in the script. The helper is **`VDA_RunOnDesktop(...)`** in **`vda-init.ahk`** (you can also call it from your own code).
 
+### Optional: auto-route **every new window** to one desktop (shell hook)
+
+**File:** **`win11-vd-optional-shellhook-route-new-windows.ahk`** (run it **separately** if you want this behavior).
+
+- Uses a **shell hook** + **undocumented COM** (not `VirtualDesktopAccessor.dll`). May need fixes after major Windows updates.
+- Edit at the top: **`RouteMode`** (`"silent"` = move only, stay on your current desktop; `"active"` = move **and** switch to the target desktop), **`TargetDesktopNumber`**, and **`ExcludedWindows`**.
+- You usually **do not** need both this and the startup list in `win11-vd-api.ahk` doing similar jobs; keep one approach to avoid confusion.
+- Based on ideas from the AutoHotkey forums (e.g. [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=82&t=139235)).
+
 ## Files
 
 | File | Role |
 |------|------|
 | `win11-vd-api.ahk` | Entry script: hotkeys, tray menu |
+| `win11-vd-optional-shellhook-route-new-windows.ahk` | **Optional:** shell hook — route new windows to one desktop (`silent` / `active`) |
 | `vda-init.ahk` | Loads the DLL and exposes helper functions |
 | `download-vda.ps1` | Optional: download latest `VirtualDesktopAccessor.dll` from upstream |
 | `VirtualDesktopAccessor.dll` | Bundled third-party binary (see [`THIRD_PARTY.md`](THIRD_PARTY.md)) |
