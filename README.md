@@ -62,6 +62,10 @@ To disable a key, set its `VDA_HK_*` line to **`false`**.
 
 **Notes:** `VDA_HK_GoNext` would put “next desktop” on **F15** as well — that **conflicts** with pin on F15, so leave it `false` by default. **`VDA_HK_MoveActivePrev`** would move the window to the **previous** desktop on **F17** — that **conflicts** with **`VDA_HK_F17CreateDesktop`**. To get “move window to previous desktop” on F17 again, set `VDA_HK_F17CreateDesktop` to `false` and `VDA_HK_MoveActivePrev` to `true`, or bind `VDA_GoToPrev()` from `vda-init.ahk` to another key yourself.
 
+### Launch apps on a fixed desktop (optional, off by default)
+
+In **`win11-vd-api.ahk`**, set **`VDA_RUN_ON_DESKTOP_AT_START`** to **`true`** and fill **`VDA_RunOnDesktopList`** with one or more objects (`desktop`, `exe`, `args`, `workDir`). Commented examples are in the script. The helper is **`VDA_RunOnDesktop(...)`** in **`vda-init.ahk`** (you can also call it from your own code).
+
 ## Files
 
 | File | Role |
